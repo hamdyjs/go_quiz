@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,8 +14,11 @@ type problem struct {
 }
 
 func main() {
+	fileName := flag.String("file", "problems.csv", "Problems CSV file")
+	flag.Parse()
+
 	// Read from CSV file
-	file, _ := os.Open("problems.csv")
+	file, _ := os.Open(*fileName)
 	r := csv.NewReader(file)
 	records, err := r.ReadAll()
 	if err != nil {
