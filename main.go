@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 type problem struct {
@@ -15,6 +16,7 @@ type problem struct {
 
 func main() {
 	fileName := flag.String("file", "problems.csv", "Problems CSV file")
+	answerLimit := flag.Int("time", 30, "Time limit to answer each question")
 	flag.Parse()
 
 	// Read from CSV file
@@ -35,16 +37,31 @@ func main() {
 	fmt.Println("=== STARTING QUIZ ===")
 	questionCounter := 1
 	correctAnswers := 0
+quizLoop:
 	for _, problem := range problems {
+		answerTimer := time.NewTimer(time.Duration(*answerLimit) * time.Second)
+		scanChan := make(chan struct{})
+
 		fmt.Printf("Question #%d: %s\n", questionCounter, problem.question)
 		var answer string
-		fmt.Scan(&answer)
-		if answer == problem.answer {
-			correctAnswers++
+
+		go func() {
+			fmt.Scan(&answer)
+			scanChan <- struct{}{}
+		}()
+
+		select {
+		case <-answerTimer.C:
+			break quizLoop
+		case <-scanChan:
+			answerTimer.Stop()
+			if answer == problem.answer {
+				correctAnswers++
+			}
+			questionCounter++
 		}
-		questionCounter++
 	}
 
 	fmt.Println("=== FINISHED QUIZ ===")
-	fmt.Printf("Result: %d/%d", correctAnswers, questionCounter-1)
+	fmt.Printf("Result: %d/%d", correctAnswers, len(problems))
 }
