@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 )
@@ -17,6 +18,7 @@ type problem struct {
 func main() {
 	fileName := flag.String("file", "problems.csv", "Problems CSV file")
 	answerLimit := flag.Int("time", 30, "Time limit to answer each question")
+	shuffleProblems := flag.Bool("shuffle", false, "Shuffle problems?")
 	flag.Parse()
 
 	// Read from CSV file
@@ -32,6 +34,12 @@ func main() {
 	problems := make([]problem, 0)
 	for _, record := range records {
 		problems = append(problems, problem{record[0], record[1]})
+	}
+	if *shuffleProblems {
+		rand.Seed(time.Now().UTC().UnixNano())
+		rand.Shuffle(len(problems), func(i, j int) {
+			problems[i], problems[j] = problems[j], problems[i]
+		})
 	}
 
 	fmt.Println("=== STARTING QUIZ ===")
