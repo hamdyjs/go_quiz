@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"os"
 )
@@ -26,4 +27,20 @@ func main() {
 	for _, record := range records {
 		problems = append(problems, problem{record[0], record[1]})
 	}
+
+	fmt.Println("=== STARTING QUIZ ===")
+	questionCounter := 1
+	correctAnswers := 0
+	for _, problem := range problems {
+		fmt.Printf("Question #%d: %s\n", questionCounter, problem.question)
+		var answer string
+		fmt.Scan(&answer)
+		if answer == problem.answer {
+			correctAnswers++
+		}
+		questionCounter++
+	}
+
+	fmt.Println("=== FINISHED QUIZ ===")
+	fmt.Printf("Result: %d/%d", correctAnswers, questionCounter-1)
 }
